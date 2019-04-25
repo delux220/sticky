@@ -1,12 +1,15 @@
 import React from 'react'
 import { Button } from 'antd'
 import { Helmet } from 'react-helmet'
+
+import axios from 'axios'
+import FacebookLogin from 'react-facebook-login'
 import styles from './style.module.scss'
 import LoginForm from './LoginForm'
 
 class LoginBeta extends React.Component {
   state = {
-    fullScreen: false,
+    fullScreen: true,
     backgroundNumber: 1,
   }
 
@@ -27,6 +30,14 @@ class LoginBeta extends React.Component {
     this.setState({
       backgroundNumber,
     })
+  }
+
+  responseFacebook = (response) => {
+    axios.post('/api/facebook', {
+      user_id: response.userID, access_token: response.accessToken
+    }).then((result) => {
+      console.log(result);
+    });
   }
 
   render() {
@@ -92,6 +103,19 @@ class LoginBeta extends React.Component {
                     Ipsum has been the industry&#39;s standard dummy text ever since the 1500s.
                   </p>
                   <p>Ipsum has been the industry&#39;s standard dummy text ever since the 1500s.</p>
+                  <FacebookLogin
+                    appId="2025808077727094"
+                    autoLoad={false}
+                    scope="public_profile,email,publish_to_groups"
+                    icon='icmn-facebook mr-2'
+                    callback={this.responseFacebook}
+                    cssClass="btn btn-primary btn-block"
+                    textButton="Connect with Facebook"
+                    
+                  />
+                  <button type="button" className="mt-2 btn btn-danger btn-block">
+                    <i className="fa fa-reddit-alien" /> Connect with Reddit
+                  </button>
                 </div>
                 <div className={styles.sidebarFooter}>
                   <span>

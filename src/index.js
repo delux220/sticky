@@ -16,7 +16,7 @@ import * as serviceWorker from './serviceWorker'
 // app styles
 import './global.scss'
 
-const history = createHashHistory()
+const history = createHashHistory({queryKey: false})
 const sagaMiddleware = createSagaMiddleware()
 const routeMiddleware = routerMiddleware(history)
 const middlewares = [thunk, sagaMiddleware, routeMiddleware]
