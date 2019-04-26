@@ -1,16 +1,15 @@
 import React from 'react'
-import { Button } from 'antd'
 import { Helmet } from 'react-helmet'
 
 import axios from 'axios'
 import FacebookLogin from 'react-facebook-login'
+import cookie from 'react-cookies'
 import styles from './style.module.scss'
 import LoginForm from './LoginForm'
 
 class LoginBeta extends React.Component {
   state = {
     fullScreen: true,
-    backgroundNumber: 1,
   }
 
   setFullscreen = () => {
@@ -20,48 +19,39 @@ class LoginBeta extends React.Component {
     })
   }
 
-  changeBackground = () => {
-    let { backgroundNumber } = this.state
-    if (backgroundNumber === 5) {
-      backgroundNumber = 1
-    } else {
-      backgroundNumber += 1
-    }
-    this.setState({
-      backgroundNumber,
-    })
-  }
+  changeBackground = () => {}
 
-  responseFacebook = (response) => {
-    axios.post('/api/facebook', {
-      user_id: response.userID, access_token: response.accessToken
-    }).then((result) => {
-      console.log(result);
-    });
+  responseFacebook = response => {
+    const { props } = this
+    axios
+      .post('/api/facebook', {
+        user_id: response.userID,
+        access_token: response.accessToken,
+      })
+      .then(result => {
+        cookie.save('access_token', result.data.jwt_token, { path: '/' })
+        props.history.push('/dashboard/alpha')
+      })
   }
 
   render() {
-    const { fullScreen, backgroundNumber } = this.state
+    const { fullScreen } = this.state
 
     return (
       <div>
         <Helmet title="Login Beta" />
         <section
           className={`${styles.login} ${fullScreen ? styles.fullscreen : styles.windowed}`}
-          style={{ backgroundImage: `url('resources/images/photos/${backgroundNumber}.jpeg')` }}
+          style={{
+            backgroundImage:
+              "url('https://res.cloudinary.com/meshed-nyc/nicholas-green-324622-unsplash_umdttf.jpg')",
+          }}
         >
           <header className={styles.header}>
             <a className={styles.logo} href="javascript: void(0);">
               <img src="resources/images/logo-inverse.png" alt="Clean UI Admin Template" />
             </a>
-            <div className={styles.styleControls}>
-              <Button className="mt-3 mt-xl-0" onClick={this.setFullscreen}>
-                {`Set ${fullScreen ? 'Windowed' : 'Fullscreen'}`}
-              </Button>
-              <Button className="ml-3 mt-3 mt-xl-0" onClick={this.changeBackground}>
-                Change Background
-              </Button>
-            </div>
+
             <nav className={styles.loginNav}>
               <ul className={styles.navItems}>
                 <li>
@@ -83,11 +73,8 @@ class LoginBeta extends React.Component {
           </header>
           <div className={styles.content}>
             <div className={styles.promo}>
-              <h1 className="mb-3">Welcome to Clean UI admin template</h1>
-              <p>
-                Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem
-                Ipsum has been the industry&#39;s standard dummy text ever since the 1500s.
-              </p>
+              <h1 className="mb-3 text-white">Welcome to Sticky</h1>
+              <p>We find sponsors for your thriving online communities</p>
             </div>
             <div className={styles.formWrapper}>
               <div className={styles.form}>
@@ -95,23 +82,23 @@ class LoginBeta extends React.Component {
                 <LoginForm />
               </div>
               <div className={styles.sidebar}>
-                <p className={styles.sidebarTitle}>Agile Dev Meetup</p>
-                <p className={styles.sidebarSubTitle}>August 2018</p>
+                <p className={styles.sidebarTitle}>Facebook + Reddit</p>
                 <div className={styles.sidebarContent}>
                   <p>
-                    Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem
-                    Ipsum has been the industry&#39;s standard dummy text ever since the 1500s.
+                    Are you the admin for a thriving Facebook group? Or perhaps a moderator for a
+                    busy subreddit?
                   </p>
-                  <p>Ipsum has been the industry&#39;s standard dummy text ever since the 1500s.</p>
+                  <p>
+                    Managing and maintaining communities is not easy. Let sponsors compensate you!
+                  </p>
                   <FacebookLogin
                     appId="2025808077727094"
                     autoLoad={false}
                     scope="public_profile,email,publish_to_groups"
-                    icon='icmn-facebook mr-2'
+                    icon="icmn-facebook mr-2"
                     callback={this.responseFacebook}
                     cssClass="btn btn-primary btn-block"
                     textButton="Connect with Facebook"
-                    
                   />
                   <button type="button" className="mt-2 btn btn-danger btn-block">
                     <i className="fa fa-reddit-alien" /> Connect with Reddit
@@ -120,7 +107,7 @@ class LoginBeta extends React.Component {
                 <div className={styles.sidebarFooter}>
                   <span>
                     <i className="icmn-location mr-3" />
-                    New York, USA
+                    Made in Queens, New York
                   </span>
                 </div>
               </div>

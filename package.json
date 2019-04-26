@@ -56,6 +56,8 @@
     "react-c3js": "^0.1.20",
     "react-chartist": "^0.13.3",
     "react-chartjs-2": "^2.7.4",
+    "react-cookie": "^3.1.2",
+    "react-cookies": "^0.1.0",
     "react-custom-scrollbars": "^4.2.1",
     "react-dom": "^16.8.6",
     "react-draft-wysiwyg": "^1.13.1",
