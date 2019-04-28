@@ -10,7 +10,10 @@ class Avatar extends React.Component {
   }
 
   render() {
-    const { size, borderColor, src, border } = this.props
+    const { size, borderColor, border, user } = this.props
+    console.log(user)
+    const imageId = user.image_id != null ? user.image_id : 'bagel2-compressor_oc5m4t'
+
     return (
       <a
         className={`${style.avatar} ${size ? style[`size${size}`] : ''} ${
@@ -21,7 +24,10 @@ class Avatar extends React.Component {
           borderColor,
         }}
       >
-        <img src={src} alt="User" />
+        <img
+          src={`https://res.cloudinary.com/meshed-nyc/w_150,h_150,c_fill/${imageId}.jpg`}
+          alt="User"
+        />
       </a>
     )
   }

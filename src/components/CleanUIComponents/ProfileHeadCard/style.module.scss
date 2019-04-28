@@ -5,10 +5,13 @@
   background: $white;
   position: relative;
   border-radius: 3px;
+  margin-bottom: 34px;
 }
 
 .head {
-  height: rem(250);
+  height: rem(200);
+  display: flex;
+  align-items: center;
   background: $gray-lighten-more center center;
   background-size: cover;
   border-radius: 0.25rem;
@@ -23,8 +26,12 @@
 }
 
 .right {
-  margin-left: rem(140);
-  padding-top: rem(40);
-  padding-right: rem(20);
-  padding-bottom: 1px;
+  margin-left: rem(160);
+  padding-top: rem(20);
+  padding-right: rem(40);
+  padding-bottom: 10px;
+}
+.rightInner {
+  height: 100px;
+  overflow: hidden;
 }
