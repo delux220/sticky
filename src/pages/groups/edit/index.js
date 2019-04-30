@@ -2,7 +2,7 @@ import React from 'react'
 import { Helmet } from 'react-helmet'
 import cookie from 'react-cookies'
 import axios from 'axios'
-import { EditorState, convertToRaw } from 'draft-js'
+import { EditorState, convertToRaw, convertFromRaw  } from 'draft-js'
 import { Editor } from 'react-draft-wysiwyg'
 import { Form, Select } from 'antd'
 
@@ -33,10 +33,16 @@ class Group extends React.Component {
         cats.push(cat.category_id)
       })
 
-      console.log(cats)
-      group.groupCategories = cats
+      group.groupCategories = cats;
+      let editorState = EditorState.createEmpty();
+      try {
+          editorState = EditorState.createWithContent( convertFromRaw(JSON.parse(group.description_html)));
+      } catch (e) {
+          console.log(e);
+          editorState = EditorState.createEmpty();
+      }
 
-      this.setState({ group, categories: result.data.categories })
+      this.setState({ group, categories: result.data.categories, editorState })
     })
   }
 
@@ -52,7 +58,7 @@ class Group extends React.Component {
       .post(`/api/groups/${id}`, {
         price_per_day: price,
         groupCategories,
-        description_html: convertToRaw(editorState.getCurrentContent()),
+        description_html: JSON.stringify(convertToRaw(editorState.getCurrentContent())),
       })
       .then(result => {
         console.log(result)

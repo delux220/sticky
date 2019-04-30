@@ -1,30 +1,37 @@
 import React from 'react'
 import { Carousel, Breadcrumb, Rate, Select, Tooltip, Button, Icon, Tabs } from 'antd'
 import { Helmet } from 'react-helmet'
+import axios from 'axios';
+import { Editor, EditorState, convertFromRaw } from "draft-js";
 import styles from './style.module.scss'
 import data from './data.json'
 
 const { TabPane } = Tabs
 const { Option } = Select
 
-class ProductDetails extends React.Component {
+class GroupDetails extends React.Component {
   state = {
     imgActiveStatus: [],
     images: data.images,
     sku: data.sku,
-    name: data.name,
     rate: data.rate,
-    price: data.price,
-    oldPrice: data.oldPrice,
-    shortDescr: data.shortDescr,
-    description: data.description,
     properties: data.properties,
+    group: null
   }
 
   componentWillMount() {
     this.generateImgStatus()
   }
 
+  componentDidMount() {
+    const {match} = this.props;
+    const {params} = match;
+    const {id} = params;
+    axios.get(`/api/groups/${id}`).then((result) => {
+        const {group} = result.data;
+        this.setState({group});
+    });
+  }
 
   generateImgStatus = () => {
     const { imgActiveStatus, images } = this.state
@@ -64,22 +71,27 @@ class ProductDetails extends React.Component {
       imgActiveStatus,
       images,
       sku,
-      name,
       rate,
-      price,
-      oldPrice,
-      shortDescr,
-      description,
+      group,
       properties,
     } = this.state
 
+
+    if (group == null) {
+      return <div />
+    }
+
+    
+    const contentState = convertFromRaw(JSON.parse(group.description_html));
+    const editorState = EditorState.createWithContent(contentState);
+
     return (
       <div>
-        <Helmet title="Products Details" />
+        <Helmet title="Group Details" />
         <section className="card">
           <div className="card-header">
             <div className="utils__title">
-              <strong>Product Details</strong>
+              <strong>Facebook Group Details</strong>
             </div>
           </div>
           <div className="card-body">
@@ -147,15 +159,16 @@ class ProductDetails extends React.Component {
                   </div>
                 </div>
                 <h4 className={styles.mainTitle}>
-                  <strong>{name}</strong>
+                  <strong>{group.name}</strong>
                 </h4>
                 <div className={styles.price}>
-                  {`$${price}`}
-                  {oldPrice && <div className={styles.priceBefore}>{`$${oldPrice}`}</div>}
+                  {`$${group.price_per_day}`}
                 </div>
                 <hr />
                 <div className={`mb-1 ${styles.descr}`}>
-                  <p>{shortDescr}</p>
+                  <p>
+                    <Editor editorState={editorState} readOnly />
+                  </p>
                 </div>
                 <div className="row">
                   <div className="col-lg-6">
@@ -210,7 +223,7 @@ class ProductDetails extends React.Component {
                       ))}
                     </TabPane>
                     <TabPane tab="Description" key="2">
-                      <p>{description}</p>
+                      <p>{group.description}</p>
                     </TabPane>
                   </Tabs>
                 </div>
@@ -223,4 +236,4 @@ class ProductDetails extends React.Component {
   }
 }
 
-export default ProductDetails
+export default GroupDetails
