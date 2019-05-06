@@ -4,7 +4,8 @@ import cookie from 'react-cookies'
 import axios from 'axios'
 import { EditorState, convertToRaw, convertFromRaw  } from 'draft-js'
 import { Editor } from 'react-draft-wysiwyg'
-import { Form, Select } from 'antd'
+import { Form, Select, Upload, Icon, Modal } from 'antd'
+
 
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
 
@@ -16,6 +17,9 @@ axios.defaults.headers.common.Authorization = `Bearer ${accessToken}`
 
 class Group extends React.Component {
   state = {
+    previewVisible: false,
+    fileList: [],
+    previewImage: '',
     group: null,
     categories: [],
     editorState: EditorState.createEmpty(),
@@ -46,6 +50,39 @@ class Group extends React.Component {
     })
   }
 
+  cloudinary = (obj) => {
+    const {fileList} = this.state;
+    console.log(fileList);
+    const uploadPreset = 'stodzapg';
+    console.log(obj);
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      console.log(e.target.result);
+      const formData = new FormData();
+      formData.append('upload_preset', uploadPreset);
+      formData.append('file', e.target.result);
+      axios.post(obj.action, formData, {
+         headers: {'X-Requested-With': 'XMLHttpRequest'}
+      }).then((result) => {
+      console.log(result);
+    });
+    }
+    reader.readAsText(obj.file.slice(0, obj.file.size-1));
+
+
+
+
+
+
+    
+    
+  }
+
+  handleUpload = ({ fileList }) => {
+    console.log(fileList);
+    this.setState({ fileList })}
+
   save = () => {
     const { match } = this.props
     const { params } = match
@@ -54,14 +91,17 @@ class Group extends React.Component {
     const { groupCategories } = group
     const price = group.price_per_day
 
-    axios
-      .post(`/api/groups/${id}`, {
+    axios.post(`/api/groups/${id}`, {
         price_per_day: price,
         groupCategories,
         description_html: JSON.stringify(convertToRaw(editorState.getCurrentContent())),
       })
       .then(result => {
-        console.log(result)
+        console.log(result);
+        const { fileList } = this.state;
+        fileList.push({
+          id: result.public_id
+        });
       })
   }
 
@@ -85,6 +125,13 @@ class Group extends React.Component {
 
   render() {
     const { group, categories, editorState } = this.state
+    const { previewVisible, previewImage, fileList } = this.state;
+    const uploadButton = (
+      <div>
+        <Icon type="plus" />
+        <div className="ant-upload-text">Upload</div>
+      </div>
+    );
 
     if (group == null) {
       return <div />
@@ -141,6 +188,22 @@ class Group extends React.Component {
                     onChange={this.handlePriceChange}
                     value={group.price_per_day}
                   />
+                </FormItem>
+                <FormItem label="Page Images">
+                  <p className="text-muted">Upload any relevant images. Please be mindful of copyrighted material.</p>
+                  <Upload
+                    action="/api/images"
+                    listType="picture-card"
+                    fileList={fileList}
+                    onPreview={this.handlePreview}
+                    withCredentials
+                    onChange={this.handleUpload}
+                  >
+                    {fileList.length >= 3 ? null : uploadButton}
+                  </Upload>
+                  <Modal visible={previewVisible} footer={null} onCancel={this.handleCancel}>
+                    <img alt="example" style={{ width: '100%' }} src={previewImage} />
+                  </Modal>
                 </FormItem>
                 <button className="btn btn-primary" type="button" onClick={this.save}>
                   Save
