@@ -69,7 +69,6 @@ class GroupDetails extends React.Component {
   render() {
     const {
       imgActiveStatus,
-      images,
       sku,
       rate,
       group,
@@ -81,7 +80,7 @@ class GroupDetails extends React.Component {
       return <div />
     }
 
-    
+
     const contentState = convertFromRaw(JSON.parse(group.description_html));
     const editorState = EditorState.createWithContent(contentState);
 
@@ -106,19 +105,19 @@ class GroupDetails extends React.Component {
                       <i className="icmn-heart" />
                     </div>
                     <Carousel ref={this.refSlider} autoplay={false} dots={false} effect="fade">
-                      {images.map(image => (
-                        <div key={image}>
-                          <img className={styles.img} src={image} alt="" />
+                      {group.images.map(image => (
+                        <div key={image.id}>
+                          <img className={styles.img} src={image.src_500} alt="" />
                         </div>
                       ))}
                     </Carousel>
                   </div>
                 </div>
                 <div className={`${styles.photos} clearfix`}>
-                  {images.map((image, index) => (
+                  {group.images.map((image, index) => (
                     <a
                       href="javascript: void(0)"
-                      key={image}
+                      key={image.image_id}
                       onClick={e => {
                         this.changeSlide(e, index)
                       }}
@@ -126,7 +125,7 @@ class GroupDetails extends React.Component {
                         imgActiveStatus[index] === 'active' ? styles.photosItemActive : ''
                       }`}
                     >
-                      <img src={image} alt="" />
+                      <img src={image.src_200} alt="" />
                     </a>
                   ))}
                 </div>
@@ -141,12 +140,12 @@ class GroupDetails extends React.Component {
                     </Breadcrumb.Item>
                     <Breadcrumb.Item>
                       <span className={styles.breadcrumbItem}>
-                        <a href="javascript: void(0);">Chairs</a>
+                        <a href="javascript: void(0);">Facebook Groups</a>
                       </span>
                     </Breadcrumb.Item>
                     <Breadcrumb.Item>
                       <span className={styles.breadcrumbItem}>
-                        <a href="javascript: void(0);">White</a>
+                        <a href="javascript: void(0);">Social</a>
                       </span>
                     </Breadcrumb.Item>
                   </Breadcrumb>
@@ -163,6 +162,7 @@ class GroupDetails extends React.Component {
                 </h4>
                 <div className={styles.price}>
                   {`$${group.price_per_day}`}
+                  <span style={{fontSize:'14px', marginLeft: '5px'}}>per day</span>
                 </div>
                 <hr />
                 <div className={`mb-1 ${styles.descr}`}>
@@ -201,7 +201,7 @@ class GroupDetails extends React.Component {
                 <div className={styles.controls}>
                   <Button type="primary" size="large">
                     <Icon type="shopping-cart" />
-                    Buy now
+                    Buy Sticky Post
                   </Button>
                   <a href="javascript: void(0);" className="btn btn-link">
                     <i className="icmn-heart mr-1" />

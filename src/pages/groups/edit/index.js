@@ -4,7 +4,7 @@ import cookie from 'react-cookies'
 import axios from 'axios'
 import { EditorState, convertToRaw, convertFromRaw  } from 'draft-js'
 import { Editor } from 'react-draft-wysiwyg'
-import { Form, Select, Upload, Icon, Modal } from 'antd'
+import { Form, Select, Upload, Icon, Modal, notification } from 'antd'
 
 
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
@@ -35,26 +35,39 @@ class Group extends React.Component {
       const cats = []
       group.group_categories.forEach(cat => {
         cats.push(cat.category_id)
-      })
+      });
 
       group.groupCategories = cats;
       let editorState = EditorState.createEmpty();
       try {
           editorState = EditorState.createWithContent( convertFromRaw(JSON.parse(group.description_html)));
       } catch (e) {
-          console.log(e);
           editorState = EditorState.createEmpty();
       }
+
+      const {fileList} = this.state;
+      group.images.forEach((image) => {
+        fileList.push({
+            uid: image.image_id,
+            name: `${image.image_id}.jpg`,
+            response: {
+
+                uid: image.image_id,
+                url: image.src_200
+            },
+            thumbUrl: image.src_200,
+            type: 'image/jpeg'
+        });
+      })
 
       this.setState({ group, categories: result.data.categories, editorState })
     })
   }
 
   cloudinary = (obj) => {
-    const {fileList} = this.state;
-    console.log(fileList);
+   
     const uploadPreset = 'stodzapg';
-    console.log(obj);
+    const { fileList } = this.state;
 
     const reader = new FileReader();
     reader.onload = (e) => {
@@ -64,17 +77,11 @@ class Group extends React.Component {
       formData.append('file', e.target.result);
       axios.post(obj.action, formData, {
          headers: {'X-Requested-With': 'XMLHttpRequest'}
-      }).then((result) => {
-      console.log(result);
+      }).then((results) => {
+        fileList[fileList.length-1] = results[0].response;
     });
     }
     reader.readAsText(obj.file.slice(0, obj.file.size-1));
-
-
-
-
-
-
     
     
   }
@@ -87,21 +94,28 @@ class Group extends React.Component {
     const { match } = this.props
     const { params } = match
     const { id } = params
-    const { editorState, group } = this.state
+    const { group, editorState, fileList } = this.state
     const { groupCategories } = group
-    const price = group.price_per_day
+    const price = group.price_per_day;
+    const imageIds = [];
+    fileList.forEach((file) => {
+      imageIds.push(file.response.uid);
+    });
 
     axios.post(`/api/groups/${id}`, {
         price_per_day: price,
         groupCategories,
         description_html: JSON.stringify(convertToRaw(editorState.getCurrentContent())),
-      })
-      .then(result => {
-        console.log(result);
-        const { fileList } = this.state;
-        fileList.push({
-          id: result.public_id
+        image_ids: imageIds
+      }).then((result) => {
+        this.setState({group: result.data.group});
+        notification.success({
+          placement: 'topRight',
+          message: 'Saved',
+          description: "Your group's details were updated.",
+          duration: 3,
         });
+        
       })
   }
 
