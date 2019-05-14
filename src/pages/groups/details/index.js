@@ -1,13 +1,13 @@
 import React from 'react'
-import { Carousel, Breadcrumb, Rate, Select, Tooltip, Button, Icon, Tabs } from 'antd'
+import { Carousel, Breadcrumb, Rate,  Icon, Tabs } from 'antd'
 import { Helmet } from 'react-helmet'
 import axios from 'axios';
+import { Link } from 'react-router-dom'
 import { Editor, EditorState, convertFromRaw } from "draft-js";
 import styles from './style.module.scss'
 import data from './data.json'
 
 const { TabPane } = Tabs
-const { Option } = Select
 
 class GroupDetails extends React.Component {
   state = {
@@ -15,7 +15,6 @@ class GroupDetails extends React.Component {
     images: data.images,
     sku: data.sku,
     rate: data.rate,
-    properties: data.properties,
     group: null
   }
 
@@ -72,7 +71,6 @@ class GroupDetails extends React.Component {
       sku,
       rate,
       group,
-      properties,
     } = this.state
 
 
@@ -170,59 +168,28 @@ class GroupDetails extends React.Component {
                     <Editor editorState={editorState} readOnly />
                   </p>
                 </div>
-                <div className="row">
-                  <div className="col-lg-6">
-                    <div className={styles.optionTitle}>Color</div>
-                    <div className={styles.option}>
-                      <Select defaultValue="Red" size="small" style={{ width: 120 }}>
-                        <Option value="red">Red</Option>
-                        <Option value="black">Black</Option>
-                        <Option value="cyan">Cyan</Option>
-                        <Option value="blue">Blue</Option>
-                      </Select>
-                    </div>
-                    <div className={styles.optionTitle}>Available Size</div>
-                    <div className={styles.option}>
-                      <div className={styles.sizes}>
-                        <Tooltip placement="top" title="Size S">
-                          <span>S</span>
-                        </Tooltip>
-                        <Tooltip placement="top" title="Size M">
-                          <span title="Size M">M</span>
-                        </Tooltip>
-                        <Tooltip placement="top" title="Size XL">
-                          <span>XL</span>
-                        </Tooltip>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+               
                 <hr />
                 <div className={styles.controls}>
-                  <Button type="primary" size="large">
-                    <Icon type="shopping-cart" />
-                    Buy Sticky Post
-                  </Button>
-                  <a href="javascript: void(0);" className="btn btn-link">
-                    <i className="icmn-heart mr-1" />
-                    Add to Wishlist
-                  </a>
-                  <a href="javascript: void(0);" className="btn btn-link">
-                    <i className="icmn-stats-bars mr-1" />
-                    Add to Compare
-                  </a>
+                  <Link className="btn btn-primary btn-block" to={`/groups/${group.id}/order`}>
+                    <Icon type="shopping-cart" className="mr-2" />
+                    <strong>Buy Sticky Post</strong>
+                  </Link>
+                  
                 </div>
                 <div className={styles.info}>
                   <Tabs defaultActiveKey="1">
                     <TabPane tab="Information" key="1">
-                      {properties.map(property => (
-                        <div className="mb-1" key={property.name}>
-                          <strong className="mr-1">{`${property.name}: `}</strong>
-                          {property.value}
-                        </div>
-                      ))}
+                      <div className="mb-1">
+                        <strong className="mr-1">Platform:</strong>
+                        Facebook
+                      </div>
+                      <div className="mb-1">
+                        <strong className="mr-1">Member Count:</strong>
+                        {group.member_count}
+                      </div>
                     </TabPane>
-                    <TabPane tab="Description" key="2">
+                    <TabPane tab="Group Description" key="2">
                       <p>{group.description}</p>
                     </TabPane>
                   </Tabs>
