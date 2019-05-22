@@ -1,9 +1,9 @@
 import React from 'react'
-import { Carousel, Breadcrumb, Rate,  Button, Form } from 'antd'
+import { Carousel, Breadcrumb, Rate, Form } from 'antd'
 import { Helmet } from 'react-helmet'
-import axios from 'axios';
+import axios from 'axios'
 import { Link } from 'react-router-dom'
-import {StripeProvider, Elements, CardElement} from 'react-stripe-elements';
+import StripeForm from './form'
 import styles from './style.module.scss'
 import data from './data.json'
 
@@ -17,8 +17,7 @@ class GroupOrder extends React.Component {
     group: null,
     finePrint: data.finePrint,
     total: 0,
-    stripeLoaded: false,
-    days: 1
+    days: 1,
   }
 
   componentWillMount() {
@@ -26,22 +25,15 @@ class GroupOrder extends React.Component {
   }
 
   componentDidMount() {
-    const stripe = document.createElement("script");
-    stripe.src = `https://js.stripe.com/v3/`;
-    stripe.async = false;
-    stripe.onload = () => this.setState({stripeLoaded: true});
-
-    document.body.appendChild(stripe);
-
-    const {match} = this.props;
-    const {params} = match;
-    const {id} = params;
-    axios.get(`/api/groups/${id}`).then((result) => {
-        const {group} = result.data;
-        const { days } = this.state;
-        const total = group.price_per_day*days;
-        this.setState({group, total});
-    });
+    const { match } = this.props
+    const { params } = match
+    const { id } = params
+    axios.get(`/api/groups/${id}`).then(result => {
+      const { group } = result.data
+      const { days } = this.state
+      const total = group.price_per_day * days
+      this.setState({ group, total })
+    })
   }
 
   generateImgStatus = () => {
@@ -77,32 +69,29 @@ class GroupOrder extends React.Component {
     this.setActiveImg(index)
   }
 
-  recalculateTotal = (e) => {
-    const {group} = this.state;
-    let {total, days} = this.state;
-    days = e.target.value;
-   
-    total = days*group.price_per_day;
-    this.setState({days, total});
+  recalculateTotal = e => {
+    const { group } = this.state
+    let { total, days } = this.state
+    days = e.target.value
+
+    total = days * group.price_per_day
+    this.setState({ days, total })
+  }
+
+  processOrder = result => {
+    console.log(result)
   }
 
   render() {
-    const {
-      imgActiveStatus,
-      rate,
-      group,
-      finePrint,
-      days,
-      stripeLoaded,
-      total
-    } = this.state;
-
+    const { imgActiveStatus, rate, group, finePrint, days, total } = this.state
 
     if (group == null) {
-      return <div />
+      return (
+        <div>
+          <Helmet title="Group Details" />
+        </div>
+      )
     }
-
-
 
     return (
       <div>
@@ -164,11 +153,9 @@ class GroupOrder extends React.Component {
                           <a href="javascript: void(0);">Order</a>
                         </span>
                       </Breadcrumb.Item>
-                      
                     </Breadcrumb>
                   </div>
                   <div className={styles.sku}>
-                    
                     <div className={styles.raiting}>
                       <Rate value={rate} disabled allowHalf />
                     </div>
@@ -178,38 +165,40 @@ class GroupOrder extends React.Component {
                   </h4>
 
                   <FormItem label="How many days">
-
                     <div className="row">
                       <div className="col-xs-6 col-md-2">
-                        <input type="number" name="days" className="form-control py-4 text-center" value={days} id="days" style={{fontSize:'18px'}} onChange={this.recalculateTotal} />
+                        <input
+                          type="number"
+                          name="days"
+                          className="form-control py-4 text-center"
+                          value={days}
+                          id="days"
+                          style={{ fontSize: '18px' }}
+                          onChange={this.recalculateTotal}
+                        />
                       </div>
                       <div className="col-xs-6">
-                        <h3 className="font-weight-bold text-muted mt-2 px-3">&times; <span className="text-dark ml-2">{`$${group.price_per_day}`} per day</span></h3>
+                        <h3 className="font-weight-bold text-muted mt-2 px-3">
+                          &times;{' '}
+                          <span className="text-dark ml-2">
+                            {`$${group.price_per_day}`} per day
+                          </span>
+                        </h3>
                       </div>
                     </div>
                   </FormItem>
                   <div>
-                    <h3 className="text-success"><span className="text-muted">Total:</span> <span className="font-weight-bold">{`$${total}`}</span></h3>
+                    <h3 className="text-success">
+                      <span className="text-muted">Total:</span>{' '}
+                      <span className="font-weight-bold">{`$${total}`}</span>
+                    </h3>
                   </div>
                   <hr />
                   <div className={`mb-1 ${styles.descr}`}>
-                    {stripeLoaded&&
-                      <div style={{border:'1px solid #eee', padding:'18px'}}>
-                        <StripeProvider apiKey="pk_test_GAqizDjvpp1mxq69CuM4gSNq00jxMDGmIf">
-                          <Elements>
-                            <CardElement style={{base: {fontSize: '14px', fontFamily: '"Nunito Sans", sans-serif'}}} />
-                          </Elements>
-                        </StripeProvider>
-                      </div>}   
-                    <Button type="primary" size="large" className="mt-3 btn-block">
-                      Purchase Sticky Post
-                    </Button>
+                    <StripeForm processOrder={this.processOrder} />
                     <p className="mt-3">{finePrint}</p>
-                  
                   </div>
-                  
                   <hr />
-                  
                 </div>
               </div>
             </Form>
