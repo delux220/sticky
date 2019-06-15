@@ -79,7 +79,24 @@ class GroupOrder extends React.Component {
   }
 
   processOrder = result => {
-    console.log(result)
+    const {token} = result;
+    const {group, days} = this.state;
+    if (token) {
+      const source = token.id;
+      axios.post('/api/order', {
+        days,
+        source,
+        group_id: group.id
+      }, {
+        responseType: 'json'
+      }).then((response) => {
+        if (response.data.redirect_url) {
+          const redirectUrl = response.data.redirect_url;
+          const {history} = this.props;
+          history.push(redirectUrl);
+        }
+      });
+    }
   }
 
   render() {

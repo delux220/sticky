@@ -43,6 +43,11 @@ const routes = [
     exact: true,
   },
   {
+    path: '/orders/:id',
+    component: loadable(() => import('pages/orders/details')),
+    exact: true,
+  },
+  {
     path: '/groups',
     component: loadable(() => import('pages/groups')),
     exact: true,
